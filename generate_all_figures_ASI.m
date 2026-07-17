@@ -1,5 +1,4 @@
-%% generate_all_figures_ASI.m
-% One-script file to reproduce the figures for:
+% Script file to reproduce the figures for:
 % "Active and Backstepping Control for Stabilization and Synchronization
 % of a Four-Dimensional Hyperchaotic Finance System"
 %
@@ -9,6 +8,8 @@
 %   2. Set FAST_MODE = true for a quick test run; set FAST_MODE = false for
 %      denser, publication-quality bifurcation diagrams.
 %   3. All helper functions are included at the end of this same file.
+%   4. This version avoids tiledlayout, nexttile, and exportgraphics
+%      dependencies, so it is suitable for MATLAB R2019a.
 %
 % Simulations were performed in MATLAB using ode45 with RelTol=1e-9 and
 % AbsTol=1e-12. The random seed was fixed using rng(1) for noisy robustness
@@ -66,12 +67,11 @@ saveFig(gcf,OUTDIR,'Fig01_TimeSeries',SAVE_FIGS);
 idx = t >= 20;
 Xt = X(:,idx);
 figure(2); clf;
-tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
-nexttile; plot3(Xt(1,:),Xt(2,:),Xt(3,:),'LineWidth',0.6); grid on; xlabel('x'); ylabel('y'); zlabel('z'); title('(x,y,z)');
-nexttile; plot3(Xt(1,:),Xt(2,:),Xt(4,:),'LineWidth',0.6); grid on; xlabel('x'); ylabel('y'); zlabel('w'); title('(x,y,w)');
-nexttile; plot3(Xt(1,:),Xt(3,:),Xt(4,:),'LineWidth',0.6); grid on; xlabel('x'); ylabel('z'); zlabel('w'); title('(x,z,w)');
-nexttile; plot3(Xt(2,:),Xt(3,:),Xt(4,:),'LineWidth',0.6); grid on; xlabel('y'); ylabel('z'); zlabel('w'); title('(y,z,w)');
-sgtitle('3-D projections of the 4-D hyperchaotic attractor');
+subplot(2,2,1); plot3(Xt(1,:),Xt(2,:),Xt(3,:),'LineWidth',0.6); grid on; xlabel('x'); ylabel('y'); zlabel('z'); title('(x,y,z)');
+subplot(2,2,2); plot3(Xt(1,:),Xt(2,:),Xt(4,:),'LineWidth',0.6); grid on; xlabel('x'); ylabel('y'); zlabel('w'); title('(x,y,w)');
+subplot(2,2,3); plot3(Xt(1,:),Xt(3,:),Xt(4,:),'LineWidth',0.6); grid on; xlabel('x'); ylabel('z'); zlabel('w'); title('(x,z,w)');
+subplot(2,2,4); plot3(Xt(2,:),Xt(3,:),Xt(4,:),'LineWidth',0.6); grid on; xlabel('y'); ylabel('z'); zlabel('w'); title('(y,z,w)');
+addSuperTitle('3-D projections of the 4-D hyperchaotic attractor');
 saveFig(gcf,OUTDIR,'Fig02_PhasePortraits',SAVE_FIGS);
 
 %% ----------------------- Figure 3: sensitivity -----------------------
@@ -99,13 +99,12 @@ fprintf('Final Lyapunov exponents: %.7f %.7f %.7f %.7f\n',LEfinal);
 fprintf('Final Kaplan-Yorke dimension: %.7f\n',DKYfinal);
 
 figure(4); clf;
-tiledlayout(2,1,'TileSpacing','compact','Padding','compact');
-nexttile;
+subplot(2,1,1);
 plot(stepNo,LErun,'LineWidth',1); grid on;
 xlabel('QR reorthonormalization step'); ylabel('\lambda_i');
 legend('\lambda_1','\lambda_2','\lambda_3','\lambda_4','Location','best');
 title('Convergence of Lyapunov exponents');
-nexttile;
+subplot(2,1,2);
 plot(stepNo,DKYrun,'LineWidth',1); grid on;
 xlabel('QR reorthonormalization step'); ylabel('D_{KY}');
 title('Running Kaplan--Yorke dimension');
@@ -136,23 +135,21 @@ B_d = bifurcation_scan('d',vals.d,p,x0,T_bif,T_trans,dt_bif,n_keep,opts);
 B_k = bifurcation_scan('k',vals.k,p,x0,T_bif,T_trans,dt_bif,n_keep,opts);
 
 figure(5); clf;
-tiledlayout(3,2,'TileSpacing','compact','Padding','compact');
-plotBifTile(B_a,'a');
-plotBifTile(B_b,'b');
-plotBifTile(B_c,'c');
-plotBifTile(B_d,'d');
-plotBifTile(B_k,'k');
-sgtitle('Bifurcation diagrams via Poincare section w=0, \dot{w}>0');
+subplot(3,2,1); plotBifTile(B_a,'a');
+subplot(3,2,2); plotBifTile(B_b,'b');
+subplot(3,2,3); plotBifTile(B_c,'c');
+subplot(3,2,4); plotBifTile(B_d,'d');
+subplot(3,2,5); plotBifTile(B_k,'k');
+addSuperTitle('Bifurcation diagrams via Poincare section w=0, \dot{w}>0');
 saveFig(gcf,OUTDIR,'Fig05_BifurcationDiagrams',SAVE_FIGS);
 
 %% ----------------------- Figure 6: enlarged bifurcations and trajectories -----------------------
 figure(6); clf;
-tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
-nexttile; scatter(B_a.param,B_a.xcross,3,'.'); grid on; xlabel('a'); ylabel('x at crossings'); title('Bifurcation in a');
-nexttile; plot_phase_for_param('a',[0.9 1.4],p,x0,opts); title('Representative trajectories for a');
-nexttile; scatter(B_b.param,B_b.xcross,3,'.'); grid on; xlabel('b'); ylabel('x at crossings'); title('Bifurcation in b');
-nexttile; plot_phase_for_param('b',[0.10 0.25],p,x0,opts); title('Representative trajectories for b');
-sgtitle('Enlarged bifurcation views and representative regimes');
+subplot(2,2,1); scatter(B_a.param,B_a.xcross,3,'.'); grid on; xlabel('a'); ylabel('x at crossings'); title('Bifurcation in a');
+subplot(2,2,2); plot_phase_for_param('a',[0.9 1.4],p,x0,opts); title('Representative trajectories for a');
+subplot(2,2,3); scatter(B_b.param,B_b.xcross,3,'.'); grid on; xlabel('b'); ylabel('x at crossings'); title('Bifurcation in b');
+subplot(2,2,4); plot_phase_for_param('b',[0.10 0.25],p,x0,opts); title('Representative trajectories for b');
+addSuperTitle('Enlarged bifurcation views and representative regimes');
 saveFig(gcf,OUTDIR,'Fig06_BifurcationRepresentative',SAVE_FIGS);
 
 %% ----------------------- Figures 7--8: synchronization before control -----------------------
@@ -163,17 +160,16 @@ Yunc = deval(solUnc,ts);
 M = Yunc(1:4,:); S = Yunc(5:8,:); E = S-M;
 
 figure(7); clf;
-tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
 stateNames = {'x','y','z','w'};
 for i=1:4
-    nexttile;
+    subplot(2,2,i);
     plot(ts,M(i,:),'LineWidth',1); hold on;
     plot(ts,S(i,:),'--','LineWidth',1);
     xlabel('t'); ylabel(stateNames{i}); grid on;
     title(sprintf('%s_1 and %s_2',stateNames{i},stateNames{i}));
     if i==1, legend('master','slave','Location','best'); end
 end
-sgtitle('Master and slave states before synchronization');
+addSuperTitle('Master and slave states before synchronization');
 saveFig(gcf,OUTDIR,'Fig07_BeforeSynchronizationStates',SAVE_FIGS);
 
 figure(8); clf;
@@ -211,16 +207,15 @@ Yabs = deval(solABSsync,ts);
 Mabs = Yabs(1:4,:); Sabs = Yabs(5:8,:); Eabs = Sabs-Mabs;
 
 figure(11); clf;
-tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
 for i=1:4
-    nexttile;
+    subplot(2,2,i);
     plot(ts,Mabs(i,:),'LineWidth',1); hold on;
     plot(ts,Sabs(i,:),'--','LineWidth',1);
     xlabel('t'); ylabel(stateNames{i}); grid on;
     title(sprintf('%s_1 vs %s_2',stateNames{i},stateNames{i}));
     if i==1, legend('master','slave','Location','best'); end
 end
-sgtitle('ABS synchronization: aligned states');
+addSuperTitle('ABS synchronization: aligned states');
 saveFig(gcf,OUTDIR,'Fig11_ABS_SyncStates',SAVE_FIGS);
 
 figure(12); clf;
@@ -248,16 +243,15 @@ title('AC synchronization: error components');
 saveFig(gcf,OUTDIR,'Fig14_AC_SyncErrors',SAVE_FIGS);
 
 figure(15); clf;
-tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
 for i=1:4
-    nexttile;
+    subplot(2,2,i);
     plot(ts,Mac(i,:),'LineWidth',1); hold on;
     plot(ts,Sac(i,:),'--','LineWidth',1);
     xlabel('t'); ylabel(stateNames{i}); grid on;
     title(sprintf('%s_1 vs %s_2',stateNames{i},stateNames{i}));
     if i==1, legend('master','slave','Location','best'); end
 end
-sgtitle('AC synchronization: aligned states');
+addSuperTitle('AC synchronization: aligned states');
 saveFig(gcf,OUTDIR,'Fig15_AC_SyncStates',SAVE_FIGS);
 
 figure(16); clf;
@@ -530,7 +524,6 @@ function B = bifurcation_scan(paramName,paramVals,p0,x0,Tend,Ttrans,dt,nKeep,opt
 end
 
 function plotBifTile(B,label)
-    nexttile;
     scatter(B.param,B.xcross,3,'.'); grid on;
     xlabel(label); ylabel('x at crossings'); title(sprintf('parameter %s',label));
 end
@@ -552,16 +545,26 @@ end
 function saveFig(figHandle,outdir,name,doSave)
     if ~doSave, return; end
     set(figHandle,'Color','w');
+    drawnow;
+    print(figHandle,fullfile(outdir,[name '.png']),'-dpng','-r300');
     try
-        exportgraphics(figHandle,fullfile(outdir,[name '.png']),'Resolution',300);
-        exportgraphics(figHandle,fullfile(outdir,[name '.pdf']),'ContentType','vector');
-    catch
-        print(figHandle,fullfile(outdir,[name '.png']),'-dpng','-r300');
         print(figHandle,fullfile(outdir,[name '.pdf']),'-dpdf','-bestfit');
+    catch
+        print(figHandle,fullfile(outdir,[name '.pdf']),'-dpdf');
     end
     try
         savefig(figHandle,fullfile(outdir,[name '.fig']));
     catch
-        % savefig not available in very old MATLAB versions
+        
+    end
+end
+
+function addSuperTitle(txt)
+        if exist('sgtitle','file') == 2 || exist('sgtitle','builtin') == 5
+        sgtitle(txt);
+    else
+        annotation('textbox',[0 0.95 1 0.04], ...
+            'String',txt,'EdgeColor','none','HorizontalAlignment','center', ...
+            'FontWeight','bold');
     end
 end
