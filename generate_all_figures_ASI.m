@@ -10,7 +10,6 @@
 %      denser, publication-quality bifurcation diagrams.
 %   3. All helper functions are included at the end of this same file.
 %
-% Suggested manuscript statement:
 % Simulations were performed in MATLAB using ode45 with RelTol=1e-9 and
 % AbsTol=1e-12. The random seed was fixed using rng(1) for noisy robustness
 % simulations.
